@@ -6,11 +6,11 @@ const EXCHANGE_API_BASE_URL = 'https://api.exchangerate-api.com/v4/latest';
 
 // Currencies available in the store
 export const CURRENCIES = [
-  { code: 'MXN', name: 'Mexican peso', symbol: '$' },
-  { code: 'USD', name: 'US  Dollar', symbol: '$' },
+  { code: 'MXN', name: 'Mexican Peso', symbol: '$' },
+  { code: 'USD', name: 'US Dollar', symbol: '$' },
   { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'JPY', name: 'Yen', symbol: '¥' },
-  { code: 'GBP', name: 'Pound Sterling', symbol: '£' }
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  { code: 'GBP', name: 'British Pound', symbol: '£' }
 ];
 
 // Generate random price for a Pokemon
