@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -9,65 +9,32 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Alert,
-  Snackbar
+  DialogActions
 } from '@mui/material';
-import { AccountBalance, Add, Casino } from '@mui/icons-material';
+import { AccountBalance, Add } from '@mui/icons-material';
 import { Wallet as WalletType } from '../types';
-import { getWallet, addFundsToWallet } from '../utils/storage';
 
 interface WalletProps {
   onWalletUpdate: () => void;
 }
 
 const WalletComponent: React.FC<WalletProps> = ({ onWalletUpdate }) => {
-  const [wallet, setWallet] = useState<WalletType>(getWallet());
+  const [wallet, setWallet] = useState<WalletType>({
+    balance: Math.floor(Math.random() * 10000) + 5000, // Random balance between 5000-15000
+    currency: 'MXN'
+  });
   const [openDialog, setOpenDialog] = useState(false);
   const [amount, setAmount] = useState('');
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
-  useEffect(() => {
-    const updateWalletState = () => {
-      setWallet(getWallet());
-    };
-
-    window.addEventListener('storage', updateWalletState);
-    
-    updateWalletState();
-
-    return () => {
-      window.removeEventListener('storage', updateWalletState);
-    };
-  }, []);
-
-  const handleAddRandomFunds = () => {
-    const randomAmount = Math.floor(Math.random() * 5000) + 1000;
-    const updatedWallet = addFundsToWallet(randomAmount);
-    setWallet(updatedWallet);
-    onWalletUpdate();
-    setSnackbarMessage(`$${randomAmount.toLocaleString()} MXN  were added to your wallet!`);
-    setSnackbarSeverity('success');
-    setShowSnackbar(true);
-  };
-
-  const handleAddCustomFunds = () => {
+  const handleAddFunds = () => {
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      setSnackbarMessage('Enter a valid amount');
-      setSnackbarSeverity('error');
-      setShowSnackbar(true);
+      alert('Please enter a valid amount');
       return;
     }
 
-    const updatedWallet = addFundsToWallet(numAmount);
-    setWallet(updatedWallet);
+    setWallet(prev => ({ ...prev, balance: prev.balance + numAmount }));
     onWalletUpdate();
-    setSnackbarMessage(` $${numAmount.toLocaleString()} MXN were added to your wallet!`);
-    setSnackbarSeverity('success');
-    setShowSnackbar(true);
     setOpenDialog(false);
     setAmount('');
   };
@@ -99,33 +66,23 @@ const WalletComponent: React.FC<WalletProps> = ({ onWalletUpdate }) => {
           </Typography>
           
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            Currency: {wallet.currency === 'MXN' ? 'Mexican peso' : wallet.currency}
+            Currency: {wallet.currency === 'MXN' ? 'Mexican Peso' : wallet.currency}
           </Typography>
           
-          <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Button
-              variant="outlined"
-              startIcon={<Casino />}
-              onClick={handleAddRandomFunds}
-              size="small"
-            >
-             Add Random Funds
-            </Button>
-            
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={() => setOpenDialog(true)}
-              size="small"
-            >
-              Add Funds
-            </Button>
-          </Box>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => setOpenDialog(true)}
+            size="small"
+            sx={{ mt: 2 }}
+          >
+            Add Funds
+          </Button>
         </CardContent>
       </Card>
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Agregar Fondos al Monedero</DialogTitle>
+        <DialogTitle>Add Funds to Wallet</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -140,26 +97,12 @@ const WalletComponent: React.FC<WalletProps> = ({ onWalletUpdate }) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancelar</Button>
-          <Button onClick={handleAddCustomFunds} variant="contained">
-            Agregar
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={handleAddFunds} variant="contained">
+            Add
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={showSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setShowSnackbar(false)}
-      >
-        <Alert 
-          onClose={() => setShowSnackbar(false)} 
-          severity={snackbarSeverity}
-          sx={{ width: '100%' }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </>
   );
 };
