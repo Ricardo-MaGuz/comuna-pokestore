@@ -1,3 +1,12 @@
+export interface PokemonStats {
+  hp: number;
+  attack: number;
+  defense: number;
+  specialAttack: number;
+  specialDefense: number;
+  speed: number;
+}
+
 export interface Pokemon {
   id: number;
   name: string;
@@ -7,14 +16,7 @@ export interface Pokemon {
   weight: number;
   price: number;
   currency: string;
-  stats: {
-    hp: number;
-    attack: number;
-    defense: number;
-    specialAttack: number;
-    specialDefense: number;
-    speed: number;
-  };
+  stats: PokemonStats;
 }
 
 export interface CartItem {
