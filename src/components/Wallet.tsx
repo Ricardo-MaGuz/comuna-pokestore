@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -9,32 +9,65 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Alert,
+  Snackbar
 } from '@mui/material';
-import { AccountBalance, Add } from '@mui/icons-material';
+import { AccountBalance, Add, Casino } from '@mui/icons-material';
 import { Wallet as WalletType } from '../types';
+import { getWallet, addFundsToWallet } from '../utils/storage';
 
 interface WalletProps {
   onWalletUpdate: () => void;
 }
 
 const WalletComponent: React.FC<WalletProps> = ({ onWalletUpdate }) => {
-  const [wallet, setWallet] = useState<WalletType>({
-    balance: Math.floor(Math.random() * 10000) + 5000, // Random balance between 5000-15000
-    currency: 'MXN'
-  });
+  const [wallet, setWallet] = useState<WalletType>(getWallet());
   const [openDialog, setOpenDialog] = useState(false);
   const [amount, setAmount] = useState('');
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
-  const handleAddFunds = () => {
+  useEffect(() => {
+    const updateWalletState = () => {
+      setWallet(getWallet());
+    };
+
+    window.addEventListener('storage', updateWalletState);
+    
+    updateWalletState();
+
+    return () => {
+      window.removeEventListener('storage', updateWalletState);
+    };
+  }, []);
+
+  const handleAddRandomFunds = () => {
+    const randomAmount = Math.floor(Math.random() * 5000) + 1000;
+    const updatedWallet = addFundsToWallet(randomAmount);
+    setWallet(updatedWallet);
+    onWalletUpdate();
+    setSnackbarMessage(`$${randomAmount.toLocaleString()} MXN were added to your wallet!`);
+    setSnackbarSeverity('success');
+    setShowSnackbar(true);
+  };
+
+  const handleAddCustomFunds = () => {
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      alert('Please enter a valid amount');
+      setSnackbarMessage('Enter a valid amount');
+      setSnackbarSeverity('error');
+      setShowSnackbar(true);
       return;
     }
 
-    setWallet(prev => ({ ...prev, balance: prev.balance + numAmount }));
+    const updatedWallet = addFundsToWallet(numAmount);
+    setWallet(updatedWallet);
     onWalletUpdate();
+    setSnackbarMessage(`$${numAmount.toLocaleString()} MXN were added to your wallet!`);
+    setSnackbarSeverity('success');
+    setShowSnackbar(true);
     setOpenDialog(false);
     setAmount('');
   };
@@ -69,15 +102,25 @@ const WalletComponent: React.FC<WalletProps> = ({ onWalletUpdate }) => {
             Currency: {wallet.currency === 'MXN' ? 'Mexican Peso' : wallet.currency}
           </Typography>
           
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => setOpenDialog(true)}
-            size="small"
-            sx={{ mt: 2 }}
-          >
-            Add Funds
-          </Button>
+          <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              startIcon={<Casino />}
+              onClick={handleAddRandomFunds}
+              size="small"
+            >
+              Add Random Funds
+            </Button>
+            
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={() => setOpenDialog(true)}
+              size="small"
+            >
+              Add Funds
+            </Button>
+          </Box>
         </CardContent>
       </Card>
 
@@ -98,11 +141,25 @@ const WalletComponent: React.FC<WalletProps> = ({ onWalletUpdate }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddFunds} variant="contained">
+          <Button onClick={handleAddCustomFunds} variant="contained">
             Add
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setShowSnackbar(false)}
+      >
+        <Alert 
+          onClose={() => setShowSnackbar(false)} 
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
