@@ -20,7 +20,7 @@ interface PokemonCollectionProps {}
 
 const PokemonCollection: React.FC<PokemonCollectionProps> = () => {
   const [expanded, setExpanded] = useState(false);
-  const [ownedPokemon, setOwnedPokemon] = useState<Pokemon[]>([]);
+  const [ownedPokemon] = useState<Pokemon[]>([]);
 
   const handleToggleExpand = () => {
     setExpanded(!expanded);
