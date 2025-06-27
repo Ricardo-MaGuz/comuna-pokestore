@@ -18,6 +18,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Pokemon } from './types';
 import { fetchPokemon, CURRENCIES } from './services/api';
+import { cachePokemon } from './utils/storage';
 import PokemonCard from './components/PokemonCard';
 import WalletComponent from './components/Wallet';
 import ShoppingCartComponent from './components/ShoppingCart';
@@ -55,6 +56,7 @@ const App: React.FC = () => {
       for (let id = startId; id <= endId; id++) {
         try {
           const pokemon = await fetchPokemon(id);
+          cachePokemon(pokemon);
           newPokemons.push(pokemon);
         } catch (error) {
           console.error(`Error loading Pokemon ${id}:`, error);
