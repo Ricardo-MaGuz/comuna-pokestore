@@ -43,6 +43,7 @@ const PokemonCollection: React.FC = () => {
       });
       
       setOwnedPokemon(pokemonList);
+      console.log('PokemonCollection: Updated owned Pokemon count:', pokemonList.length);
     };
 
     window.addEventListener('storage', updateOwnedPokemon);
@@ -78,40 +79,25 @@ const PokemonCollection: React.FC = () => {
     return `${getCurrencySymbol(currency)}${price.toLocaleString()}`;
   };
 
-  if (ownedPokemon.length === 0) {
-    return (
-      <Card sx={{ minWidth: 275, mb: 2 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Collections sx={{ mr: 1, color: 'text.secondary' }} />
-            <Typography variant="h6" component="div" color="text.secondary">
-              My Collection
-            </Typography>
-          </Box>
-          <Typography variant="body1" color="text.secondary">
-            There are no Pokémon in your collection yet.
-          </Typography>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <>
-      <Card sx={{ minWidth: 275, mb: 2 }}>
+      <Card sx={{ minWidth: 275, mb: 2, border: '2px solid #e0e0e0' }}>
         <CardContent>
           <Box 
             sx={{ 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'space-between',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              backgroundColor: ownedPokemon.length > 0 ? '#f0f8ff' : '#f5f5f5',
+              p: 1,
+              borderRadius: 1
             }}
             onClick={handleToggleExpanded}
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Collections sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="h6" component="div">
+              <Collections sx={{ mr: 1, color: ownedPokemon.length > 0 ? 'primary.main' : 'text.secondary' }} />
+              <Typography variant="h6" component="div" color={ownedPokemon.length > 0 ? 'primary.main' : 'text.secondary'}>
                 My Collection ({ownedPokemon.length})
               </Typography>
             </Box>
@@ -120,59 +106,67 @@ const PokemonCollection: React.FC = () => {
             </IconButton>
           </Box>
 
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Owned Pokémon:
-          </Typography>
+          {ownedPokemon.length === 0 ? (
+            <Typography variant="body1" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
+              There are no Pokémon in your collection yet.
+            </Typography>
+          ) : (
+            <>
+              <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mt: 2 }}>
+                Owned Pokémon:
+              </Typography>
 
-          <Collapse in={expanded} timeout="auto" unmountOnExit>
-            <Box sx={{ mt: 2 }}>
-              <List dense>
-                {ownedPokemon.map((pokemon) => (
-                  <ListItem 
-                    key={pokemon.id}
-                    sx={{ 
-                      border: '1px solid #e0e0e0', 
-                      borderRadius: 1, 
-                      mb: 1,
-                      backgroundColor: '#f8f9fa'
-                    }}
-                  >
-                    <ListItemAvatar>
-                      <Avatar 
-                        src={pokemon.image} 
-                        alt={pokemon.name}
-                        sx={{ width: 40, height: 40 }}
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography 
-                            variant="body1" 
-                            sx={{ 
-                              textTransform: 'capitalize',
-                              fontWeight: 'medium',
-                              mr: 1
-                            }}
-                          >
-                            {pokemon.name}
-                          </Typography>
-                          <CheckCircle sx={{ color: 'success.main', fontSize: 16 }} />
-                        </Box>
-                      }
-                      secondary={
-                        <Box>
-                          <Typography variant="caption" color="text.secondary">
-                            Buying price: {formatPrice(pokemon.price, pokemon.currency)}
-                          </Typography>
-                        </Box>
-                      }
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          </Collapse>
+              <Collapse in={expanded} timeout="auto" unmountOnExit>
+                <Box sx={{ mt: 2 }}>
+                  <List dense>
+                    {ownedPokemon.map((pokemon) => (
+                      <ListItem 
+                        key={pokemon.id}
+                        sx={{ 
+                          border: '1px solid #e0e0e0', 
+                          borderRadius: 1, 
+                          mb: 1,
+                          backgroundColor: '#f8f9fa'
+                        }}
+                      >
+                        <ListItemAvatar>
+                          <Avatar 
+                            src={pokemon.image} 
+                            alt={pokemon.name}
+                            sx={{ width: 40, height: 40 }}
+                          />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Typography 
+                                variant="body1" 
+                                sx={{ 
+                                  textTransform: 'capitalize',
+                                  fontWeight: 'medium',
+                                  mr: 1
+                                }}
+                              >
+                                {pokemon.name}
+                              </Typography>
+                              <CheckCircle sx={{ color: 'success.main', fontSize: 16 }} />
+                            </Box>
+                          }
+                          secondary={
+                            <Box>
+                              <Typography variant="caption" color="text.secondary">
+                                Buying price: {formatPrice(pokemon.price, pokemon.currency)}
+                              </Typography>
+                            </Box>
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Collapse>
+            </>
+          )}
         </CardContent>
       </Card>
 
